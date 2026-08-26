@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 넷플릭스 스타일 발표자 랜덤 뽑기</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Bebas Neue, Inter, Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti CDN for Victory Animation -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            background-color: #000000;
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-display {
+            font-family: 'Bebas Neue', 'Impact', sans-serif;
+            letter-spacing: 0.04em;
+        }
+
+        /* 넷플릭스 레드 시네마틱 네온 글로우 */
+        .netflix-glow {
+            text-shadow: 0 0 30px rgba(229, 9, 20, 0.8), 0 0 70px rgba(229, 9, 20, 0.5), 0 0 100px rgba(229, 9, 20, 0.3);
+        }
+
+        .white-glow {
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+
+        /* 회전중 슬롯머신 블러 애니메이션 */
+        .rolling-blur {
+            filter: blur(4px);
+            transform: scale(0.95);
+            transition: all 0.05s ease;
+        }
+
+        /* 발표자 확정 당첨 회전/확대 축하 애니메이션 */
+        @keyframes revealZoom {
+            0% {
+                transform: scale(0.5) rotate(-5deg);
+                opacity: 0;
+                filter: drop-shadow(0 0 0px #E50914);
+            }
+            60% {
+                transform: scale(1.15) rotate(2deg);
+                opacity: 1;
+                filter: drop-shadow(0 0 60px #E50914);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                filter: drop-shadow(0 0 40px #E50914);
+            }
+        }
+
+        .animate-reveal {
+            animation: revealZoom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            color: #E50914 !important;
+        }
+
+        /* 스포트라이트 배경 빔 애니메이션 */
+        @keyframes spotlightPulse {
+            0%, 100% {
+                background: radial-gradient(circle at center, rgba(229, 9, 20, 0.25) 0%, rgba(0, 0, 0, 1) 70%);
+            }
+            50% {
+                background: radial-gradient(circle at center, rgba(229, 9, 20, 0.45) 0%, rgba(0, 0, 0, 1) 75%);
+            }
+        }
+
+        .spotlight-active {
+            animation: spotlightPulse 1.2s infinite ease-in-out;
+        }
+
+        /* 넷플릭스 시그니처 버튼 스타일링 */
+        .btn-netflix {
+            background-color: #E50914;
+            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .btn-netflix:hover {
+            background-color: #f6121d;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 30px rgba(229, 9, 20, 0.8);
+        }
+
+        .btn-netflix:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .btn-secondary {
+            background-color: rgba(35, 35, 35, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(70, 70, 70, 0.95);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
+        }
+
+        /* 모달 디자인 */
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(10px);
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E50914;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center relative select-none bg-black text-white">
+
+    <!-- 상단 넷플릭스 스타일 헤더 -->
+    <header class="w-full max-w-7xl px-6 py-5 flex justify-between items-center z-20">
+        <!-- 넷플릭스 로고 & 타이틀 -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="resetAll()">
+            <div class="bg-[#E50914] text-black font-black px-3.5 py-1 rounded text-2xl tracking-tighter flex items-center justify-center shadow-lg">
+                N
+            </div>
+            <div class="flex flex-col">
+                <span class="font-extrabold text-xl tracking-wider text-red-600 uppercase leading-none">CLASSROOM</span>
+                <span class="text-xs tracking-widest text-gray-400 font-semibold uppercase">RANDOM PICKER</span>
+            </div>
+        </div>
+
+        <!-- 우측 조작 유틸리티 -->
+        <div class="flex items-center space-x-3">
+            <!-- 사운드 토글 -->
+            <button id="sound-btn" onclick="toggleSound()" class="px-3.5 py-2 rounded-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 text-sm transition flex items-center space-x-2">
+                <i id="sound-icon" class="fas fa-volume-high text-red-500"></i>
+                <span id="sound-status" class="hidden sm:inline text-xs font-semibold">소리 켜짐</span>
+            </button>
+
+            <!-- 중복 방지 토글 -->
+            <button id="prevent-dup-btn" onclick="togglePreventDuplicate()" class="px-3.5 py-2 rounded-full bg-gray-900 hover:bg-gray-800 border border-red-900/60 text-red-400 text-sm transition flex items-center space-x-2">
+                <i id="dup-icon" class="fas fa-check-circle text-red-500"></i>
+                <span id="dup-status" class="hidden sm:inline text-xs font-semibold">중복 없음</span>
+            </button>
+
+            <!-- 전체화면 -->
+            <button onclick="toggleFullscreen()" class="px-3.5 py-2 rounded-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 text-sm transition flex items-center space-x-2">
+                <i class="fas fa-expand"></i>
+                <span class="hidden sm:inline text-xs font-semibold">전체화면</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 메인 무대 디스플레이 영역 (화면 중앙) -->
+    <main id="stage-bg" class="flex-1 flex flex-col justify-center items-center w-full px-4 my-auto relative z-10 transition-all duration-500">
+        
+        <!-- 상태 안내 배지 -->
+        <div id="status-badge" class="mb-4 px-5 py-2 rounded-full bg-red-950/60 border border-red-800/50 text-red-400 font-bold text-sm tracking-widest uppercase flex items-center space-x-2.5">
+            <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+            <span id="status-text">발표자를 뽑을 준비가 되었습니다!</span>
+        </div>
+
+        <!-- 150px+ 초대형 중앙 발표자 디스플레이 영역 -->
+        <div class="relative flex justify-center items-center w-full max-w-6xl my-4 min-h-[220px] sm:min-h-[280px]">
+            <!-- 배경 시네마틱 후광 글로우 원 -->
+            <div id="glow-ring" class="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-red-600/10 blur-3xl pointer-events-none transition-all duration-500"></div>
+
+            <!-- 중앙 텍스트 (번호 또는 학생 이름) -->
+            <div id="number-display" class="font-display text-[25vw] sm:text-[180px] md:text-[220px] lg:text-[260px] leading-none text-white white-glow tracking-wider transition-all duration-150 select-none cursor-pointer text-center break-all px-4" onclick="toggleRoll()">
+                READY
+            </div>
+        </div>
+
+        <!-- 남아있는 후보 정보 텍스트 -->
+        <div class="text-sm font-semibold text-gray-400 tracking-wide flex items-center space-x-2">
+            <span>남은 후보:</span>
+            <span id="remaining-count-badge" class="text-red-500 font-bold text-base">30명</span>
+            <span class="text-gray-600">/</span>
+            <span>전체: <span id="total-count-badge">30명</span></span>
+        </div>
+
+    </main>
+
+    <!-- 하단 컨트롤 버튼 패널 & 당첨자 기록 목록 -->
+    <footer class="w-full max-w-5xl px-4 pb-8 pt-2 z-20 flex flex-col items-center space-y-6">
+        
+        <!-- 메인 조작 버튼 그룹 [번호입력] [시작] [정지] [리셋] -->
+        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-5 w-full">
+            
+            <!-- 1. [번호입력 / 설정] 버튼 -->
+            <button onclick="openConfigModal()" class="btn-secondary px-6 sm:px-7 py-4 rounded-full font-bold text-base sm:text-lg text-gray-200 flex items-center space-x-2.5">
+                <i class="fas fa-sliders text-red-500"></i>
+                <span>번호 입력</span>
+            </button>
+
+            <!-- 2. [시작] / 메인 실행 버튼 -->
+            <button id="start-btn" onclick="startRoll()" class="btn-netflix min-w-[150px] sm:min-w-[190px] py-4 px-8 rounded-full font-black text-lg sm:text-xl tracking-wider uppercase text-white flex items-center justify-center space-x-3">
+                <i id="start-icon" class="fas fa-play text-base"></i>
+                <span id="start-btn-text">뽑기 시작</span>
+            </button>
+
+            <!-- 3. [정지] 버튼 -->
+            <button id="stop-btn" onclick="stopRoll()" class="btn-secondary px-6 sm:px-8 py-4 rounded-full font-bold text-base sm:text-lg text-gray-300 hover:text-white flex items-center justify-center space-x-2 opacity-50 cursor-not-allowed" disabled>
+                <i class="fas fa-stop text-red-500"></i>
+                <span>정지</span>
+            </button>
+
+            <!-- 4. [리셋] 버튼 -->
+            <button onclick="resetAll()" class="btn-secondary px-6 sm:px-8 py-4 rounded-full font-bold text-base sm:text-lg text-gray-300 hover:text-white flex items-center justify-center space-x-2">
+                <i class="fas fa-rotate-left text-sm"></i>
+                <span>리셋</span>
+            </button>
+        </div>
+
+        <!-- 뽑힌 발표자 넷플릭스 카드 뱃지 히스토리 목록 -->
+        <div class="w-full bg-gray-950/80 rounded-2xl p-4 border border-gray-800/80 backdrop-blur-md">
+            <div class="flex justify-between items-center mb-3 px-1">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-trophy text-yellow-500 text-sm"></i>
+                    <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">오늘의 발표자 명단 (<span id="history-count">0</span>명)</span>
+                </div>
+                <button onclick="clearHistory()" class="text-xs text-gray-500 hover:text-red-400 transition">기록 지우기</button>
+            </div>
+            
+            <div id="history-container" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-1">
+                <div id="history-empty" class="text-xs text-gray-600 italic py-2">아직 뽑힌 발표자가 없습니다. 시작 버튼을 눌러주세요!</div>
+            </div>
+        </div>
+
+        <!-- 키보드 단축키 안내 -->
+        <div class="text-xs text-gray-500 flex items-center space-x-4 pt-1 font-medium">
+            <span><kbd class="px-2 py-0.5 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">Space</kbd> 시작 / 정지</span>
+            <span><kbd class="px-2 py-0.5 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">R</kbd> 리셋</span>
+            <span><kbd class="px-2 py-0.5 bg-gray-800 rounded border border-gray-700 text-gray-300 font-mono">F</kbd> 전체화면</span>
+        </div>
+
+    </footer>
+
+    <!-- [번호 입력 및 설정 모달] -->
+    <dialog id="config-modal" class="p-6 sm:p-8 rounded-3xl bg-gray-900 text-white border border-red-900/40 shadow-2xl max-w-lg w-full">
+        <form method="dialog" class="flex flex-col space-y-5">
+            <!-- 모달 헤더 -->
+            <div class="flex justify-between items-center pb-3 border-b border-gray-800">
+                <h3 class="text-xl font-black text-red-500 flex items-center space-x-2.5">
+                    <i class="fas fa-users-gear"></i>
+                    <span>발표자 명단 및 범위 설정</span>
+                </h3>
+                <button type="button" onclick="closeConfigModal()" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- 입력 방식 탭 선택 (숫자 범위 VS 직접 이름 입력) -->
+            <div class="flex rounded-xl bg-gray-800 p-1 border border-gray-700">
+                <button type="button" id="tab-range-btn" onclick="switchTab('range')" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm bg-red-600 text-white transition">
+                    숫자 번호 범위
+                </button>
+                <button type="button" id="tab-names-btn" onclick="switchTab('names')" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm text-gray-400 hover:text-white transition">
+                    이름 직접 입력
+                </button>
+            </div>
+
+            <!-- 1. 숫자 범위 입력 탭 패널 -->
+            <div id="panel-range" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">시작 번호</label>
+                        <input type="number" id="input-min-num" min="1" value="1" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-lg font-bold text-white text-center focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">끝 번호 (총 인원)</label>
+                        <input type="number" id="input-max-num" min="1" max="999" value="30" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-lg font-bold text-white text-center focus:outline-none focus:border-red-500">
+                    </div>
+                </div>
+
+                <!-- 빠른 인원 프리셋 버튼 -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-2">학급 인원 빠른 설정</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="setPresetRange(20)" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-bold border border-gray-700 text-gray-300">20명</button>
+                        <button type="button" onclick="setPresetRange(25)" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-bold border border-gray-700 text-gray-300">25명</button>
+                        <button type="button" onclick="setPresetRange(30)" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-bold border border-gray-700 text-gray-300">30명</button>
+                        <button type="button" onclick="setPresetRange(35)" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-bold border border-gray-700 text-gray-300">35명</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 학생 이름 입력 탭 패널 -->
+            <div id="panel-names" class="space-y-2 hidden">
+                <label class="block text-xs font-semibold text-gray-400">학생 이름 목록 (쉼표 또는 줄바꿈으로 구분)</label>
+                <textarea id="input-names-list" rows="5" placeholder="김철수, 이영희, 박민수, 정수현..." class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-sm font-medium text-white focus:outline-none focus:border-red-500 leading-relaxed"></textarea>
+                <p class="text-[11px] text-gray-500">* 학생 이름을 쉼표(,)나 엔터로 적으면 명단이 생성됩니다.</p>
+            </div>
+
+            <!-- 하단 확인 / 취소 버튼 -->
+            <div class="flex space-x-3 pt-3 border-t border-gray-800">
+                <button type="button" onclick="applyConfig()" class="btn-netflix flex-1 py-3 rounded-xl font-bold text-sm text-white">
+                    설정 적용하기
+                </button>
+                <button type="button" onclick="closeConfigModal()" class="btn-secondary px-5 py-3 rounded-xl font-bold text-sm text-gray-300">
+                    취소
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        // ==========================================
+        // 1. 상태 및 전역 데이터
+        // ==========================================
+        let studentPool = [];       // 전체 후보 목록
+        let activePool = [];        // 아직 뽑히지 않은 남은 후보 목록
+        let historyList = [];       // 뽑힌 발표자 기록 목록
+        
+        let isRolling = false;
+        let rollInterval = null;
+        let rollSpeed = 50;         // 초기 회전 속도 (ms)
+        let soundEnabled = true;
+        let preventDuplicate = true; // 중복 뽑기 금지 기본 설정
+        let activeTab = 'range';
+
+        // DOM 요소 참조
+        const numberDisplay = document.getElementById('number-display');
+        const startBtn = document.getElementById('start-btn');
+        const startIcon = document.getElementById('start-icon');
+        const startBtnText = document.getElementById('start-btn-text');
+        const stopBtn = document.getElementById('stop-btn');
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const remainingCountBadge = document.getElementById('remaining-count-badge');
+        const totalCountBadge = document.getElementById('total-count-badge');
+        const historyContainer = document.getElementById('history-container');
+        const historyEmpty = document.getElementById('history-empty');
+        const historyCount = document.getElementById('history-count');
+        const configModal = document.getElementById('config-modal');
+        const soundIcon = document.getElementById('sound-icon');
+        const soundStatus = document.getElementById('sound-status');
+        const dupIcon = document.getElementById('dup-icon');
+        const dupStatus = document.getElementById('dup-status');
+        const stageBg = document.getElementById('stage-bg');
+
+        // ==========================================
+        // 2. Web Audio API 신시사이저 (회전 틱 sound & 당첨 짜잔! 소리)
+        // ==========================================
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // 회전 시 슬롯 머신 틱 소리
+        function playRollTickSound() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'triangle';
+                const pitch = 300 + Math.random() * 200;
+                osc.frequency.setValueAtTime(pitch, ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + 0.04);
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        // 당첨시 화려한 축하 "짜잔! (Fanfare + Orchestral Chord)" 사운드
+        function playTadaFanfareSound() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+
+                // C 메이저 브라스 코어 [C4, E4, G4, C5, E5, G5, C6]
+                const chordNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+
+                // 1단계: 빠르게 올라가는 트럼펫 패시지 (도-미-솔)
+                const runNotes = [523.25, 659.25, 783.99]; // C5, E5, G5
+                runNotes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now + (idx * 0.08));
+
+                    gain.gain.setValueAtTime(0.2, now + (idx * 0.08));
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.08) + 0.15);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now + (idx * 0.08));
+                    osc.stop(now + (idx * 0.08) + 0.15);
+                });
+
+                // 2단계: 최정점 화려한 웅장한 도(C6) 메이저 화음 코드 폭발
+                const chordStartTime = now + 0.24;
+                chordNotes.forEach((freq) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, chordStartTime);
+
+                    gain.gain.setValueAtTime(0.25, chordStartTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, chordStartTime + 1.2);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(chordStartTime);
+                    osc.stop(chordStartTime + 1.2);
+                });
+
+                // 3단계: 반짝이는 차임벨 효과 (High Sine Waves)
+                const chimeFreqs = [1567.98, 2093.00, 2637.02];
+                chimeFreqs.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, chordStartTime + 0.1 + (idx * 0.1));
+
+                    gain.gain.setValueAtTime(0.15, chordStartTime + 0.1 + (idx * 0.1));
+                    gain.gain.exponentialRampToValueAtTime(0.001, chordStartTime + 0.8 + (idx * 0.1));
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(chordStartTime + 0.1 + (idx * 0.1));
+                    osc.stop(chordStartTime + 0.8 + (idx * 0.1));
+                });
+
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        // ==========================================
+        // 3. 뽑기 엔진 및 타이머 로직
+        // ==========================================
+        function initDefaultPool() {
+            studentPool = [];
+            for (let i = 1; i <= 30; i++) {
+                studentPool.push(`${i}번`);
+            }
+            activePool = [...studentPool];
+            updateCountDisplay();
+        }
+
+        function updateCountDisplay() {
+            remainingCountBadge.textContent = `${activePool.length}명`;
+            totalCountBadge.textContent = `${studentPool.length}명`;
+        }
+
+        function startRoll() {
+            if (isRolling) return;
+
+            // 남은 후보가 없을 때 처리
+            if (preventDuplicate && activePool.length === 0) {
+                statusText.textContent = "모든 발표자가 뽑혔습니다! 리셋 후 다시 시작하세요.";
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-yellow-500 animate-ping";
+                return;
+            }
+
+            getAudioContext();
+            isRolling = true;
+
+            // UI 변경
+            startBtn.disabled = true;
+            startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            stopBtn.disabled = false;
+            stopBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            statusText.textContent = "두구두구... 과연 오늘의 발표자는?!";
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-ping";
+            
+            numberDisplay.classList.remove('animate-reveal', 'white-glow');
+            numberDisplay.classList.add('rolling-blur', 'netflix-glow');
+            stageBg.classList.add('spotlight-active');
+
+            const currentCandidates = preventDuplicate ? activePool : studentPool;
+
+            // 빠른 랜덤 셔플 무한 연출
+            rollSpeed = 40;
+            const runLoop = () => {
+                if (!isRolling) return;
+                
+                const randomIndex = Math.floor(Math.random() * currentCandidates.length);
+                numberDisplay.textContent = currentCandidates[randomIndex];
+                playRollTickSound();
+
+                rollInterval = setTimeout(runLoop, rollSpeed);
+            };
+
+            runLoop();
+        }
+
+        function stopRoll() {
+            if (!isRolling) return;
+
+            clearTimeout(rollInterval);
+
+            // 감속 단계 연출 (Slot Machine Deceleration)
+            let currentCandidates = preventDuplicate ? activePool : studentPool;
+            let decelSteps = 0;
+            let currentDelay = 60;
+
+            const slowDown = () => {
+                decelSteps++;
+                const randomIndex = Math.floor(Math.random() * currentCandidates.length);
+                const selectedCandidate = currentCandidates[randomIndex];
+                numberDisplay.textContent = selectedCandidate;
+                playRollTickSound();
+
+                if (decelSteps < 12) {
+                    currentDelay += 25; // 점점 천천히 회전
+                    rollInterval = setTimeout(slowDown, currentDelay);
+                } else {
+                    // 최종 확정!
+                    isRolling = false;
+                    finalizePick(selectedCandidate);
+                }
+            };
+
+            slowDown();
+        }
+
+        function toggleRoll() {
+            if (isRolling) {
+                stopRoll();
+            } else {
+                startRoll();
+            }
+        }
+
+        // 최종 발표자 확정 연출
+        function finalizePick(pickedName) {
+            numberDisplay.classList.remove('rolling-blur');
+            numberDisplay.classList.add('animate-reveal');
+            stageBg.classList.remove('spotlight-active');
+
+            // 버튼 복원
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            stopBtn.disabled = true;
+            stopBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            statusText.textContent = `🎉 축하합니다! 발표자는 [ ${pickedName} ] 입니다!`;
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-bounce";
+
+            // 중복 방지 모드일 경우 남은 목록에서 제거
+            if (preventDuplicate) {
+                activePool = activePool.filter(item => item !== pickedName);
+                updateCountDisplay();
+            }
+
+            // 당첨자 히스토리에 추가
+            addToHistory(pickedName);
+
+            // 축하 효과음 재생 (짜잔!)
+            playTadaFanfareSound();
+
+            // 폭죽 컨페티 (Canvas Confetti) 팡파르 연출
+            launchConfetti();
+        }
+
+        // 폭죽 효과
+        function launchConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#E50914', '#ffffff', '#ffd700', '#ff4d4d']
+                });
+            }
+        }
+
+        // ==========================================
+        // 4. 히스토리 기록 관리
+        // ==========================================
+        function addToHistory(name) {
+            historyList.push(name);
+            historyEmpty.classList.add('hidden');
+            historyCount.textContent = historyList.length;
+
+            const badge = document.createElement('div');
+            badge.className = 'px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-700/60 text-red-300 font-bold text-xs flex items-center space-x-1.5 animate-bounce';
+            badge.innerHTML = `
+                <span class="text-red-500 font-black">#${historyList.length}</span>
+                <span>${name}</span>
+            `;
+            historyContainer.prepend(badge);
+
+            setTimeout(() => {
+                badge.classList.remove('animate-bounce');
+            }, 1000);
+        }
+
+        function clearHistory() {
+            historyList = [];
+            historyContainer.innerHTML = '';
+            historyContainer.appendChild(historyEmpty);
+            historyEmpty.classList.remove('hidden');
+            historyCount.textContent = '0';
+            
+            // 풀 초기화
+            activePool = [...studentPool];
+            updateCountDisplay();
+        }
+
+        function resetAll() {
+            if (isRolling) {
+                clearTimeout(rollInterval);
+                isRolling = false;
+            }
+
+            numberDisplay.textContent = 'READY';
+            numberDisplay.classList.remove('animate-reveal', 'rolling-blur', 'netflix-glow');
+            numberDisplay.classList.add('white-glow');
+            stageBg.classList.remove('spotlight-active');
+
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            stopBtn.disabled = true;
+            stopBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            statusText.textContent = "발표자를 뽑을 준비가 되었습니다!";
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse";
+
+            clearHistory();
+        }
+
+        // ==========================================
+        // 5. 모달 및 설정 적용
+        // ==========================================
+        function openConfigModal() {
+            if (isRolling) stopRoll();
+            configModal.showModal();
+        }
+
+        function closeConfigModal() {
+            configModal.close();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabRangeBtn = document.getElementById('tab-range-btn');
+            const tabNamesBtn = document.getElementById('tab-names-btn');
+            const panelRange = document.getElementById('panel-range');
+            const panelNames = document.getElementById('panel-names');
+
+            if (tab === 'range') {
+                tabRangeBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm bg-red-600 text-white transition";
+                tabNamesBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm text-gray-400 hover:text-white transition";
+                panelRange.classList.remove('hidden');
+                panelNames.classList.add('hidden');
+            } else {
+                tabNamesBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm bg-red-600 text-white transition";
+                tabRangeBtn.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm text-gray-400 hover:text-white transition";
+                panelNames.classList.remove('hidden');
+                panelRange.classList.add('hidden');
+            }
+        }
+
+        function setPresetRange(maxNum) {
+            document.getElementById('input-min-num').value = 1;
+            document.getElementById('input-max-num').value = maxNum;
+        }
+
+        function applyConfig() {
+            studentPool = [];
+
+            if (activeTab === 'range') {
+                const min = parseInt(document.getElementById('input-min-num').value) || 1;
+                const max = parseInt(document.getElementById('input-max-num').value) || 30;
+
+                if (min >= max) {
+                    alert("시작 번호는 끝 번호보다 작아야 합니다.");
+                    return;
+                }
+
+                for (let i = min; i <= max; i++) {
+                    studentPool.push(`${i}번`);
+                }
+            } else {
+                const rawText = document.getElementById('input-names-list').value;
+                const names = rawText.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+
+                if (names.length === 0) {
+                    alert("최소 1명 이상의 이름을 입력해주세요.");
+                    return;
+                }
+
+                studentPool = names;
+            }
+
+            resetAll();
+            closeConfigModal();
+        }
+
+        // ==========================================
+        // 6. 유틸리티 (토글 및 키보드 단축키)
+        // ==========================================
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundIcon.className = "fas fa-volume-high text-red-500";
+                soundStatus.textContent = "소리 켜짐";
+            } else {
+                soundIcon.className = "fas fa-volume-xmark text-gray-500";
+                soundStatus.textContent = "음소거";
+            }
+        }
+
+        function togglePreventDuplicate() {
+            preventDuplicate = !preventDuplicate;
+            if (preventDuplicate) {
+                dupIcon.className = "fas fa-check-circle text-red-500";
+                dupStatus.textContent = "중복 없음";
+            } else {
+                dupIcon.className = "fas fa-rotate text-gray-500";
+                dupStatus.textContent = "중복 허용";
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        // 키보드 단축키
+        window.addEventListener('keydown', (e) => {
+            if (configModal.open) return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                toggleRoll();
+            } else if (e.code === 'KeyR') {
+                e.preventDefault();
+                resetAll();
+            } else if (e.code === 'KeyF') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        // 초기 시작 상태 설정
+        initDefaultPool();
+    </script>
+</body>
+</html>
