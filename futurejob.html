@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2035 미래직업 연구소 🔬</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Pretendard / Orbitron / Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;800;900&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'sans-serif'],
+            title: ['"Jua"', '"Noto Sans KR"', 'sans-serif'],
+            future: ['"Orbitron"', 'sans-serif'],
+          },
+          colors: {
+            lab: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              900: '#0c2340',
+              accent: '#38bdf8',
+              emerald: '#10b981',
+              violet: '#8b5cf6',
+              amber: '#f59e0b',
+            }
+          },
+          boxShadow: {
+            'neon': '0 0 20px rgba(56, 189, 248, 0.4)',
+            'card-hover': '0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 스크롤바 커스텀 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    /* 카드 호버 및 인터랙션 애니메이션 */
+    .card-transition {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-transition:hover {
+      transform: translateY(-5px);
+    }
+    .badge-glow {
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+    }
+
+    /* 펄스 애니메이션 */
+    @keyframes pulse-gentle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .animate-gentle {
+      animation: pulse-gentle 3s infinite ease-in-out;
+    }
+
+    /* 연구소 그리드 배경 패턴 */
+    .bg-lab-grid {
+      background-size: 30px 30px;
+      background-image: 
+        linear-gradient(to right, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans bg-lab-grid antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- =====================================================================
+       [교사용 설정] 아래 변수의 URL을 원하는 주소로 교체하세요!
+       ===================================================================== -->
+  <script>
+    // 💡 교사 템플릿 변경용 전역 변수
+    const CANVA_TEMPLATE_URL = "https://canva.link/ugdfe7yf4ctnso8";
+    
+    // 💡 학생 아이디어 수집용 구글 시트 웹 앱 URL (Apps Script 배포 URL 붙여넣기)
+    // 비워둘 경우 로컬 화면 피드백만 작동하며, URL을 넣으면 구글 시트로 자동 저장됩니다.
+    const GOOGLE_SHEET_URL = ""; 
+  </script>
+
+  <!-- 최상단 네비게이션 헤더 -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-sky-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <button onclick="navigateTo('home')" class="flex items-center gap-2 group text-left focus:outline-none focus:ring-2 focus:ring-sky-400 rounded-lg p-1">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-md group-hover:scale-105 transition-transform">
+          🔬
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-future font-bold text-sky-600 tracking-wider">LAB 2035</span>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">초등 6학년 과학</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-black text-slate-800 leading-none font-title tracking-wide">
+            2035 미래직업 연구소
+          </h1>
+        </div>
+      </button>
+
+      <!-- 오른쪽 상단 컨트롤 영역 (관심 직업 버튼 & 사운드 토글) -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- 관심 직업 바로가기 버튼 (상시 노출) -->
+        <button onclick="navigateTo('saved')" id="navSavedBtn" class="flex items-center gap-2 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-900 border-2 border-amber-300 font-bold px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-sm sm:text-base shadow-sm transition-all">
+          <span class="text-amber-500 text-lg">⭐</span>
+          <span>나의 관심 직업</span>
+          <span id="savedCountBadge" class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-black">0/3</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-6 sm:py-8 flex flex-col justify-center">
+
+    <!-- ==================== VIEW 1: 첫 화면 (HOME) ==================== -->
+    <section id="view-home" class="view-panel transition-opacity duration-300">
+      <div class="max-w-3xl mx-auto text-center py-6 sm:py-12">
+        <!-- 미래 연구소 배지 -->
+        <div class="inline-flex items-center gap-2 bg-sky-100 border border-sky-300 px-4 py-1.5 rounded-full text-sky-800 font-bold text-sm mb-6 badge-glow">
+          <span class="animate-spin inline-block">🌐</span> 미래사회 문제 해결 프로젝트
+        </div>
+
+        <!-- 메인 타이틀 -->
+        <h2 class="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 mb-6 font-title tracking-tight leading-tight">
+          2035 미래직업 연구소 <span class="inline-block animate-gentle">🔬</span>
+        </h2>
+
+        <!-- 감동과 호기심을 주는 안내 문구 -->
+        <div class="bg-white/80 backdrop-blur-sm border-2 border-sky-100 p-6 sm:p-8 rounded-2xl shadow-md mb-8 text-left sm:text-center text-slate-700 space-y-3 leading-relaxed text-base sm:text-lg">
+          <p class="font-medium">
+            "과학기술의 발전으로 미래의 세상은 어떻게 달라질까요?"
+          </p>
+          <p class="text-slate-600">
+            미래사회의 문제와 과학기술의 놀라운 변화를 살펴보고,<br class="hidden sm:inline">
+            우리의 더 나은 미래를 위해 꼭 필요한 <strong class="text-sky-600 font-bold">새로운 직업</strong>을 스스로 탐색해 보세요!
+          </p>
+        </div>
+
+        <!-- 시작 버튼 -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button onclick="playSound('click'); navigateTo('categories');" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-black text-xl rounded-2xl shadow-lg shadow-sky-200 active:scale-95 transition-all flex items-center justify-center gap-3 group">
+            <span>미래사회 탐험 시작하기</span>
+            <span class="text-2xl group-hover:translate-x-1 transition-transform">🚀</span>
+          </button>
+        </div>
+
+        <!-- 6학년 과학 연구원 다짐 박스 -->
+        <div class="mt-10 grid grid-cols-3 gap-3 text-center">
+          <div class="bg-white/60 border border-slate-200 p-3 rounded-xl">
+            <div class="text-2xl mb-1">🔍</div>
+            <div class="text-xs font-bold text-slate-500">스스로 관찰하기</div>
+          </div>
+          <div class="bg-white/60 border border-slate-200 p-3 rounded-xl">
+            <div class="text-2xl mb-1">💡</div>
+            <div class="text-xs font-bold text-slate-500">질문 던져보기</div>
+          </div>
+          <div class="bg-white/60 border border-slate-200 p-3 rounded-xl">
+            <div class="text-2xl mb-1">⭐</div>
+            <div class="text-xs font-bold text-slate-500">최대 3개 직업 찜!</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: 미래사회 선택 화면 ==================== -->
+    <section id="view-categories" class="view-panel hidden transition-opacity duration-300">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="text-xs sm:text-sm font-bold bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">STEP 1</span>
+        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mt-2 mb-2 font-title">
+          탐험하고 싶은 미래 분야를 골라보세요!
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base">
+          관심 있는 카드를 클릭하면 미래사회의 상황과 멋진 과학 직업들이 펼쳐집니다.
+        </p>
+      </div>
+
+      <!-- 6개 미래사회 카드 그리드 -->
+      <div id="categoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        <!-- JS로 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: 특정 분야 상세 및 생각 질문 화면 ==================== -->
+    <section id="view-category-detail" class="view-panel hidden transition-opacity duration-300">
+      <!-- 상단 뒤로가기 & 네비게이션 -->
+      <div class="flex items-center justify-between mb-6">
+        <button onclick="playSound('click'); navigateTo('categories');" class="inline-flex items-center gap-2 text-slate-600 hover:text-sky-600 font-bold px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm active:scale-95 transition-all text-sm sm:text-base">
+          <span>⬅️</span> 다른 분야 둘러보기
+        </button>
+        <span class="text-xs sm:text-sm text-slate-400 font-medium">분야 탐험 모드</span>
+      </div>
+
+      <!-- 분야 메인 헤더 배너 -->
+      <div id="catBanner" class="p-6 sm:p-8 rounded-3xl text-white shadow-lg mb-8 relative overflow-hidden">
+        <!-- JS 동적 내용 -->
+      </div>
+
+      <!-- 🌟 중요 교육적 설계: 직업 공개 전 생각 질문 (Thinking Prompt) -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-5 sm:p-6 mb-8 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="text-3xl sm:text-4xl">🤔</div>
+          <div class="w-full">
+            <span class="bg-amber-200 text-amber-900 text-xs font-black px-2 py-0.5 rounded-md uppercase tracking-wider">미래 연구원의 생각 열기</span>
+            <h3 class="text-lg sm:text-xl font-black text-amber-950 mt-1 mb-2 font-title">
+              "여러분이라면 이 문제를 해결하기 위해 어떤 직업을 만들고 싶나요?"
+            </h3>
+            <p class="text-amber-800 text-sm leading-relaxed mb-3">
+              아래 직업들을 살펴보기 전에, 나라면 어떤 과학기술을 사용해서 이 위기나 변화를 기회로 바꿀 수 있을지 머릿속으로 상상해 보세요!
+            </p>
+            <!-- 나의 아이디어 간단 메모 (저장/구글 시트 연동) -->
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input type="text" id="studentNameInput" placeholder="이름/번호 (예: 6-1 김과학)" class="w-full sm:w-1/4 text-xs sm:text-sm px-3 py-2 rounded-xl border border-amber-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium">
+              <input type="text" id="quickThoughtInput" placeholder="내 번뜩이는 아이디어 한 줄 (예: 온실가스를 빨아들이는 나노 드론)" class="flex-grow text-xs sm:text-sm px-3 py-2 rounded-xl border border-amber-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <button id="submitThoughtBtn" onclick="saveQuickThought()" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shrink-0 transition-all flex items-center justify-center gap-1">
+                <span>기록 💡</span>
+              </button>
+            </div>
+            <p id="thoughtFeedback" class="text-xs text-amber-700 font-bold mt-1.5 hidden">✨ 멋진 생각이에요! 아래 2035년의 실제 연구원들의 직업과 비교해 보세요.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 직업 목록 3개 카드 -->
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-xl sm:text-2xl font-black text-slate-800 font-title flex items-center gap-2">
+          <span>🛠️</span> 2035년 미래 핵심 과학 직업 (3가지)
+        </h3>
+        <span class="text-xs text-slate-500">카드를 누르면 상세 탐색이 시작됩니다</span>
+      </div>
+
+      <div id="jobCardList" class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-8">
+        <!-- JS 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: 직업 상세 페이지 ==================== -->
+    <section id="view-job-detail" class="view-panel hidden transition-opacity duration-300">
+      <!-- 상단 네비게이션 -->
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="playSound('click'); goBackToCategory();" class="inline-flex items-center gap-2 text-slate-600 hover:text-sky-600 font-bold px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm active:scale-95 transition-all text-sm sm:text-base">
+          <span>⬅️</span> 분야 직업 목록으로 돌아가기
+        </button>
+        <div id="jobDetailCategoryTag" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600">
+          분야명
+        </div>
+      </div>
+
+      <!-- 직업 상세 카드 본체 -->
+      <div class="bg-white border-2 border-sky-100 rounded-3xl shadow-xl overflow-hidden mb-8">
+        <!-- 직업 상단 타이틀 영역 -->
+        <div id="jobHeaderBg" class="p-6 sm:p-8 text-white relative">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <span id="jobEmoji" class="text-5xl sm:text-6xl p-3 bg-white/20 backdrop-blur-md rounded-2xl shadow-inner">🔬</span>
+              <div>
+                <span class="text-xs uppercase font-future tracking-wider text-sky-200">2035 FUTURE CAREER</span>
+                <h2 id="jobTitle" class="text-2xl sm:text-4xl font-black font-title mt-0.5">직업 이름</h2>
+              </div>
+            </div>
+            <!-- 상단 북마크 버튼 -->
+            <button id="jobSaveToggleBtnTop" onclick="toggleCurrentJobSave()" class="self-start sm:self-center px-4 py-2 rounded-xl font-black text-sm transition-all shadow-md flex items-center gap-2">
+              <!-- JS 처리 -->
+            </button>
+          </div>
+        </div>
+
+        <!-- 본문 내용: 6학년 맞춤형 4개 핵심 정보 블록 -->
+        <div class="p-6 sm:p-8 space-y-6">
+          
+          <!-- 1. 어떤 일을 하는지 -->
+          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5">
+            <h4 class="text-base font-black text-slate-800 flex items-center gap-2 mb-2">
+              <span class="text-sky-500 text-lg">💼</span> 어떤 일을 하나요?
+            </h4>
+            <p id="jobDescription" class="text-slate-700 leading-relaxed text-base sm:text-lg">
+              설명 텍스트가 들어갑니다.
+            </p>
+          </div>
+
+          <!-- 2. 관련된 과학 개념 또는 과학기술 -->
+          <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-5">
+            <h4 class="text-base font-black text-blue-900 flex items-center gap-2 mb-2">
+              <span class="text-blue-600 text-lg">🧪</span> 연관된 과학 개념 & 기술
+            </h4>
+            <div class="flex items-start gap-3">
+              <div class="text-blue-600 text-xl font-bold">↳</div>
+              <p id="jobScienceConcept" class="text-blue-950 font-medium leading-relaxed text-sm sm:text-base">
+                과학 개념 설명이 들어갑니다.
+              </p>
+            </div>
+          </div>
+
+          <!-- 3. 필요한 능력 3가지 -->
+          <div>
+            <h4 class="text-base font-black text-slate-800 flex items-center gap-2 mb-3">
+              <span class="text-amber-500 text-lg">⚡</span> 미래 연구원에게 필요한 능력 (3가지)
+            </h4>
+            <div id="jobSkillsList" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- JS 동적 생성 -->
+            </div>
+          </div>
+
+          <!-- 4. 미래 연구원의 질문 -->
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-5 sm:p-6">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl sm:text-3xl">💬</span>
+              <div>
+                <h4 class="text-sm font-black text-purple-900 uppercase tracking-wide">
+                  미래 연구원의 질문 (스스로 생각해보기)
+                </h4>
+                <p id="jobResearchQuestion" class="text-purple-950 font-bold text-base sm:text-lg mt-1 leading-snug">
+                  "질문 내용이 들어갑니다."
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 하단 액션 버튼 바 -->
+        <div class="bg-slate-100/80 px-6 py-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button onclick="playSound('click'); goBackToCategory();" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-colors text-sm">
+            뒤로 가서 다른 직업 비교하기
+          </button>
+          
+          <button id="jobSaveToggleBtnBottom" onclick="toggleCurrentJobSave()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-base shadow-lg transition-all flex items-center justify-center gap-2">
+            <!-- JS 동적 처리 -->
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 5: 나의 관심 직업 탐색 결과 ==================== -->
+    <section id="view-saved" class="view-panel hidden transition-opacity duration-300">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="text-xs sm:text-sm font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">FINAL STEP</span>
+        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mt-2 mb-2 font-title flex items-center justify-center gap-2">
+          <span>⭐</span> 나의 미래직업 탐색 결과
+        </h2>
+        <p class="text-slate-600 text-base sm:text-lg">
+          "친구들과 이야기하여 2035년에 꼭 필요하다고 생각하는 미래직업 하나를 골라 보세요."
+        </p>
+      </div>
+
+      <!-- 저장된 직업 카드 컨테이너 -->
+      <div id="savedJobsContainer" class="mb-10">
+        <!-- JS 동적 렌더링 -->
+      </div>
+
+      <!-- 교사 및 학생을 위한 활동 연계 큰 버튼 (Canva 채용공고 만들기) -->
+      <div class="bg-white border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 shadow-xl text-center max-w-2xl mx-auto">
+        <div class="text-4xl mb-3">🎨</div>
+        <h3 class="text-xl sm:text-2xl font-black text-slate-800 font-title mb-2">
+          2035 미래직업 채용공고 제작 활동
+        </h3>
+        <p class="text-slate-600 text-sm sm:text-base mb-6">
+          내가 고른 미래직업으로 멋진 인재를 뽑는 채용공고 포스터를 만들어 볼까요?<br class="hidden sm:inline">
+          어떤 역량과 마음가짐을 가진 사람을 채용하고 싶은지 표현해 보세요!
+        </p>
+
+        <a id="canvaActionBtn" href="https://canva.link/ugdfe7yf4ctnso8" target="_blank" rel="noopener noreferrer" onclick="playSound('pop')" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-700 hover:to-pink-600 text-white font-black text-lg sm:text-xl rounded-2xl shadow-xl hover:shadow-indigo-200 active:scale-95 transition-all">
+          <span>🎨 2035 미래직업 채용공고 만들기</span>
+          <span>↗</span>
+        </a>
+        <p class="text-xs text-slate-400 mt-3">새 탭에서 디자인 템플릿 활동지가 열립니다</p>
+      </div>
+
+      <!-- 다른 분야 더 탐험하기 버튼 -->
+      <div class="text-center mt-8">
+        <button onclick="playSound('click'); navigateTo('categories');" class="text-sky-600 hover:text-sky-800 font-bold text-sm sm:text-base inline-flex items-center gap-1.5 hover:underline">
+          <span>🔄</span> 다른 미래사회 분야 더 탐험하러 가기
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 커스텀 알림 모달/토스트 (alert 사용 금지 준수) -->
+  <div id="toastMessage" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm flex items-center gap-3 opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4">
+    <span id="toastIcon">💡</span>
+    <span id="toastText">알림 메시지입니다.</span>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="border-t border-slate-200 bg-white/60 py-4 text-center text-xs text-slate-400">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>초등학교 6학년 과학 [미래 사회와 과학기술] 탐구 웹앱</span>
+      <span>2035 미래직업 연구소 🔬</span>
+    </div>
+  </footer>
+
+  <script>
+    /* =========================================================================
+       1. 미래사회 6대 분야 및 18개 미래직업 데이터 (초등 6학년 과학 교육과정 최적화)
+       ========================================================================= */
+    const FUTURE_DATA = [
+      {
+        id: "climate",
+        title: "기후위기",
+        emoji: "🌡️",
+        themeColor: "from-amber-500 to-rose-600",
+        badgeBg: "bg-rose-100 text-rose-800 border-rose-300",
+        cardBorder: "hover:border-rose-400",
+        question: "뜨거워지는 지구를 어떻게 지킬 수 있을까요?",
+        situation: "지구 온난화로 평균 기온이 오르고 폭염과 강력한 태풍이 자주 발생하고 있어요. 온실가스를 줄이고 급변하는 날씨에 인류가 안전하게 적응할 수 있는 새로운 과학기술이 절실해요.",
+        jobs: [
+          {
+            id: "job-co2-engineer",
+            categoryId: "climate",
+            categoryName: "기후위기",
+            title: "탄소포집 엔지니어",
+            emoji: "💨",
+            description: "공기 중에 떠돌거나 공장에서 나오는 이산화탄소를 특수 필터와 화학 반응으로 모아 땅속 깊은 곳이나 바위 속에 안전하게 가두는 기계를 연구하고 관리해요.",
+            scienceConcept: "온실효과와 기체의 성질 (초등 6학년: 공기의 무게, 온실가스가 열을 가두는 원리, 화학적 결합)",
+            skills: [
+              "기체와 물질의 성질을 분석하는 과학적 탐구력",
+              "새로운 공기 정화 장치를 만드는 공학적 사고력",
+              "지구 환경을 소중히 여기는 생태 감수성"
+            ],
+            researchQuestion: "포집한 이산화탄소를 버리지 않고 안전하고 단단한 건축용 벽돌로 재활용할 방법은 없을까요?"
+          },
+          {
+            id: "job-climate-analyst",
+            categoryId: "climate",
+            categoryName: "기후위기",
+            title: "기후데이터 분석가",
+            emoji: "📊",
+            description: "전 세계의 인공위성, 기상 관측소, 바다 부표에서 보내오는 엄청난 양의 날씨 데이터를 슈퍼컴퓨터로 분석하여 10년 뒤 가뭄과 홍수를 미리 예측해요.",
+            scienceConcept: "날씨와 우리 생활, 대기의 순환 (초등 5~6학년: 기온, 기압, 바람, 강수량과 기후 변화)",
+            skills: [
+              "복잡한 숫자의 흐름과 패턴을 찾는 수학·통계 능력",
+              "인공지능 기상 모델을 다루는 디지털 리터러시",
+              "위험 상황을 사람들에게 알기 쉽게 전달하는 소통 능력"
+            ],
+            researchQuestion: "우리 동네의 10년 뒤 여름 기온을 정확하게 예측하려면 어떤 관측 센서가 더 필요할까요?"
+          },
+          {
+            id: "job-climate-architect",
+            categoryId: "climate",
+            categoryName: "기후위기",
+            title: "기후적응 건축가",
+            emoji: "🏡",
+            description: "40도가 넘는 폭염에도 에어컨 없이 시원하고, 큰 홍수에도 물에 뜨는 플로팅 하우스처럼 자연재해를 스스로 견뎌내는 스마트 친환경 건물을 설계해요.",
+            scienceConcept: "열의 이동(전도·대류·복사)과 단열재의 원리 (초등 5학년: 온도와 열, 물질의 상태)",
+            skills: [
+              "태양빛과 바람길을 건물 설계에 활용하는 공간 창의력",
+              "뜨거운 열을 튕겨내는 신소재를 고르는 과학 지식",
+              "재난에 안전한 튼튼한 구조를 구상하는 디자인 감각"
+            ],
+            researchQuestion: "사막의 흰개미집처럼 자연 환기만으로 실내 온도를 5도 이상 낮추는 건물은 어떻게 지을 수 있을까요?"
+          }
+        ]
+      },
+      {
+        id: "ecology",
+        title: "생태계 변화",
+        emoji: "🐝",
+        themeColor: "from-emerald-500 to-teal-700",
+        badgeBg: "bg-emerald-100 text-emerald-800 border-emerald-300",
+        cardBorder: "hover:border-emerald-400",
+        question: "사라지는 생물과 자연을 어떻게 지킬까요?",
+        situation: "꿀벌이 사라지고 숲이 줄어들면서 동식물의 먹이사슬이 깨지고 있어요. 생태계의 균형이 무너지면 인간의 삶도 위태로워지므로 자연을 원래대로 되살리는 기술이 중요해요.",
+        jobs: [
+          {
+            id: "job-eco-restorer",
+            categoryId: "ecology",
+            categoryName: "생태계 변화",
+            title: "생태복원 전문가",
+            emoji: "🌱",
+            description: "산불이나 환경오염으로 파괴된 숲, 하천, 습지의 토양과 수질을 분석하여 토종 식물과 미생물이 다시 번식할 수 있도록 자연의 생명력을 되살려 줍니다.",
+            scienceConcept: "생태계 평형과 물질의 순환 (초등 6학년: 생산자-소비자-분해자, 먹이사슬과 생태계 복원)",
+            skills: [
+              "토양과 물속 미생물을 현미경으로 관찰하는 정밀 관찰력",
+              "어떤 식물이 서로 도와가며 자라는지 아는 생태학 지식",
+              "오랜 시간 끈기 있게 자연의 변화를 기다리는 인내심"
+            ],
+            researchQuestion: "불타버린 숲을 사람이 심지 않고도 바람과 동물을 이용해 2배 더 빠르게 되살리는 방법은 무엇일까요?"
+          },
+          {
+            id: "job-endangered-researcher",
+            categoryId: "ecology",
+            categoryName: "생태계 변화",
+            title: "멸종위기종 보호 연구원",
+            emoji: "🐅",
+            description: "사라져가는 희귀 동식물의 DNA 유전 정보를 보관하고, 인공위성 GPS 추적 태그와 드론을 이용해 야생 동물이 안전하게 새끼를 낳고 살아갈 수 있게 지켜줘요.",
+            scienceConcept: "생물의 다양성과 환경 적응 (초등 6학년: 환경에 알맞은 생물의 생김새, 유전과 번식)",
+            skills: [
+              "야생 동물의 행동과 소리를 분석하는 생물학적 호기심",
+              "동물에게 스트레스를 주지 않고 추적하는 드론 조종 기술",
+              "생명의 존엄성을 지키고자 하는 따뜻한 윤리의식"
+            ],
+            researchQuestion: "멸종된 꿀벌을 대신해 꽃가루를 안전하게 옮겨줄 '꽃가루 로봇'을 자연 생태계와 어떻게 조화시킬까요?"
+          },
+          {
+            id: "job-urban-eco-designer",
+            categoryId: "ecology",
+            categoryName: "생태계 변화",
+            title: "도시생태 설계자",
+            emoji: "🌳",
+            description: "빌딩 숲 한가운데 옥상 정원과 바람길 숲, 생태통로를 만들어 다람쥐와 새들이 도시 속에서도 사람과 함께 평화롭게 살아갈 수 있는 초록 도시를 디자인해요.",
+            scienceConcept: "식물의 광합성과 증산작용, 열섬현상 완화 (초등 6학년: 식물의 구조와 기능, 도시 기온 변화)",
+            skills: [
+              "동물들의 이동 경로를 파악하는 환경 지도 분석력",
+              "아파트 옥상과 벽면을 숲으로 바꾸는 식물 재배 기술",
+              "도시 사람들과 자연이 조화롭게 만나는 공간 구성력"
+            ],
+            researchQuestion: "도심 아파트 벽면 전체에 식물을 심으면 도시 온도를 얼마나 낮출 수 있을까요?"
+          }
+        ]
+      },
+      {
+        id: "ai-robot",
+        title: "AI·로봇",
+        emoji: "🤖",
+        themeColor: "from-cyan-500 to-blue-700",
+        badgeBg: "bg-cyan-100 text-cyan-800 border-cyan-300",
+        cardBorder: "hover:border-cyan-400",
+        question: "사람과 로봇이 함께 살아가는 세상은 어떨까요?",
+        situation: "스마트한 인공지능과 지능형 로봇이 일상 속으로 들어오고 있어요. 단순 노동은 로봇이 돕고, 인간은 더 안전하고 창의적인 활동을 함께 할 수 있는 협력 규칙이 필요해요.",
+        jobs: [
+          {
+            id: "job-life-robot-dev",
+            categoryId: "ai-robot",
+            categoryName: "AI·로봇",
+            title: "생활로봇 개발자",
+            emoji: "🦾",
+            description: "요리, 청소, 짐 나르기 등 집안일과 일상생활을 돕는 로봇을 만들어요. 어린이나 반려동물을 다치지 않게 하는 말랑말랑한 촉각 센서와 인공근육을 개발합니다.",
+            scienceConcept: "전기 회로, 도르래와 지레의 원리, 센서 기술 (초등 6학년: 전기의 이용, 기계의 작동 원리)",
+            skills: [
+              "로봇의 움직임을 컴퓨터 언어로 제어하는 코딩 알고리즘 능력",
+              "충격을 흡수하는 부드러운 소프트 로보틱스 기계 공학",
+              "사용자가 어떤 동작을 편하게 느끼는지 관찰하는 공감력"
+            ],
+            researchQuestion: "달걀을 깨뜨리지 않고 부드럽게 쥐면서도 무거운 냄비를 번쩍 들 수 있는 로봇 손은 어떻게 만들까요?"
+          },
+          {
+            id: "job-ai-safety-expert",
+            categoryId: "ai-robot",
+            categoryName: "AI·로봇",
+            title: "AI 안전 전문가",
+            emoji: "🛡️",
+            description: "자율주행차나 의료 AI가 거짓 정보를 만들거나 사람에게 해를 끼치지 않도록 알고리즘을 꼼꼼하게 검증하고, 올바른 도덕적 판단을 내리도록 안전장치를 설계해요.",
+            scienceConcept: "컴퓨터 알고리즘, 오류 검증과 조건문 (초등 소프트웨어 교육 및 과학적 의사결정)",
+            skills: [
+              "AI가 내린 수만 번의 판단 중 오류를 찾아내는 논리적 비판력",
+              "인간에게 공정하고 안전한 규칙을 정하는 정보 윤리성",
+              "문제 상황에서 신속하게 비상 정지 명령을 내리는 위기 대응력"
+            ],
+            researchQuestion: "갑자기 도로에 공이 굴러나왔을 때, 자율주행차가 1초 안에 가장 안전한 선택을 하려면 무엇을 먼저 배워야 할까요?"
+          },
+          {
+            id: "job-robot-collab-designer",
+            categoryId: "ai-robot",
+            categoryName: "AI·로봇",
+            title: "로봇 협업 디자이너",
+            emoji: "🤝",
+            description: "병원 수술실, 소방 현장, 교실 등에서 사람과 로봇이 손발을 맞출 때 서로 부딪치지 않고 자연스럽게 눈빛, 소리, 손짓으로 대화할 수 있는 협업 방식을 연구해요.",
+            scienceConcept: "소리와 빛의 신호 전달, 인체 감각기관 (초등 6학년: 우리 몸의 구조와 감각기관, 에너지 전달)",
+            skills: [
+              "사람의 표정과 감정을 읽어내는 심리학적 관찰력",
+              "로봇이 친근하게 행동하도록 만드는 인터랙션 디자인 능력",
+              "다양한 직업 현장에서 일하는 사람들의 어려움을 듣는 경청력"
+            ],
+            researchQuestion: "의사와 로봇이 말하지 않고도 0.1초 만에 필요한 수술 도구를 척척 주고받으려면 어떤 신호 체계가 필요할까요?"
+          }
+        ]
+      },
+      {
+        id: "space",
+        title: "우주개발",
+        emoji: "🚀",
+        themeColor: "from-indigo-600 to-purple-800",
+        badgeBg: "bg-purple-100 text-purple-800 border-purple-300",
+        cardBorder: "hover:border-purple-400",
+        question: "우주에서 사람이 살아가려면 무엇이 필요할까요?",
+        situation: "달 기지와 화성 탐사선 건설이 눈앞에 다가왔어요. 공기가 없고 중력이 약한 혹독한 우주 공간에서 인류가 장기간 머물고 에너지를 얻기 위한 새로운 개척 기술이 필요해요.",
+        jobs: [
+          {
+            id: "job-space-resource-scout",
+            categoryId: "space",
+            categoryName: "우주개발",
+            title: "우주자원 탐사 전문가",
+            emoji: "🪐",
+            description: "달의 남극 얼음이나 소행성에 매장된 희귀 광물(헬륨-3, 백금 등)을 로버 탐사 로봇으로 원격 탐사하고, 지구로 안전하게 보내거나 우주선 연료로 만드는 방법을 연구해요.",
+            scienceConcept: "태양계의 행성과 달, 지층과 암석의 성질 (초등 5~6학년: 지구와 달의 운동, 암석과 광물)",
+            skills: [
+              "외계 행성의 스펙트럼과 암석 성분을 분석하는 지질학 지식",
+              "수억 킬로미터 떨어진 우주 탐사선을 원격 제어하는 우주 공학",
+              "우주 조약과 평화적 자원 이용을 준수하는 국제 협력 마인드"
+            ],
+            researchQuestion: "달에 묻힌 얼음에서 산소와 수소를 분리해 우주비행사의 숨과 로켓 연료로 동시에 쓸 수 있을까요?"
+          },
+          {
+            id: "job-space-farmer",
+            categoryId: "space",
+            categoryName: "우주개발",
+            title: "우주농업 연구원",
+            emoji: "🥔",
+            description: "중력이 거의 없고 햇빛 대신 인공 LED 빛만 있는 우주 정거장 돔 안에서, 물을 99% 순환시키며 빠르게 자라고 영양가가 풍부한 우주 감자와 채소를 키워냅니다.",
+            scienceConcept: "식물의 생장 조건(빛, 물, 이산화탄소, 양분)과 무중력 반응 (초등 6학년: 식물의 한살이와 광합성)",
+            skills: [
+              "흙 없이 배양액만으로 식물을 기르는 스마트팜 수경재배 기술",
+              "우주 방사선 속에서도 튼튼하게 자라는 식물 품종 개량력",
+              "밀폐된 온실 안의 산소와 수분을 완벽하게 조절하는 환경 제어력"
+            ],
+            researchQuestion: "중력이 거의 없는 우주 공간에서 식물의 뿌리는 어떻게 아래를 알아채고 물을 찾아갈까요?"
+          },
+          {
+            id: "job-space-habitat-designer",
+            categoryId: "space",
+            categoryName: "우주개발",
+            title: "우주주거 설계자",
+            emoji: "🛸",
+            description: "우주의 극심한 추위와 방사선, 미세 운석을 막아내기 위해 달의 먼지(레골리스)를 3D 프린터로 뿜어내어 튼튼한 돔 형태의 우주 도시 기지를 건축합니다.",
+            scienceConcept: "물질의 상태 변화, 압력과 기압, 복사열 차단 (초등 6학년: 기체의 압력과 온도, 물질의 성질)",
+            skills: [
+              "3D 프린팅 로봇으로 현지 암석을 건축자재로 바꾸는 창의력",
+              "진공 상태에서도 실내 1기압을 안전하게 유지하는 구조 공학",
+              "오랜 우주 생활로 답답하지 않도록 빛과 정원을 배치하는 디자인 감각"
+            ],
+            researchQuestion: "지구에서 무거운 벽돌을 싣고 가지 않고, 달에 있는 흙먼지만으로 100명이 살 튼튼한 아파트를 지을 수 있을까요?"
+          }
+        ]
+      },
+      {
+        id: "aging",
+        title: "저출산·고령화",
+        emoji: "👵",
+        themeColor: "from-amber-600 to-orange-700",
+        badgeBg: "bg-orange-100 text-orange-800 border-orange-300",
+        cardBorder: "hover:border-orange-400",
+        question: "나이가 많은 사람이 늘어난 사회에는 무엇이 필요할까요?",
+        situation: "할머니, 할아버지 세대가 많아지고 태어나는 아이들은 줄어들고 있어요. 어르신들이 아프지 않고 즐겁게 생활하며, 세대가 서로 지혜를 나눌 수 있는 따뜻한 돌봄 기술이 필요해요.",
+        jobs: [
+          {
+            id: "job-silver-tech-dev",
+            categoryId: "aging",
+            categoryName: "저출산·고령화",
+            title: "실버테크 개발자",
+            emoji: "🦿",
+            description: "다리 힘이 약해진 어르신이 가볍게 입으면 계단도 척척 오르게 돕는 '웨어러블 외골격 로봇 슈트'나, 넘어짐을 0.01초 만에 감지해 에어백을 터뜨리는 옷을 만들어요.",
+            scienceConcept: "우리 몸의 뼈와 근육의 구조, 가속도 센서 (초등 6학년: 운동과 에너지, 인체의 구조와 기능)",
+            skills: [
+              "사람의 보행 움직임을 정밀 측정하는 생체역학 지식",
+              "옷처럼 가볍고 편안한 전자섬유와 모터를 결합하는 기술",
+              "어르신들의 신체적 불편함을 세심하게 살피는 따뜻한 마음"
+            ],
+            researchQuestion: "지팡이를 짚지 않아도 스스로 균형을 잡아주어 절대 넘어지지 않게 하는 스마트 신발은 어떨까요?"
+          },
+          {
+            id: "job-care-robot-planner",
+            categoryId: "aging",
+            categoryName: "저출산·고령화",
+            title: "돌봄로봇 기획자",
+            emoji: "🧸",
+            description: "혼자 계신 어르신의 말동무가 되어 옛날이야기를 나누고, 복약 시간을 알려주며, 표정과 체온을 실시간으로 확인해 위급할 때 119에 자동으로 연결해 주는 로봇을 기획해요.",
+            scienceConcept: "체온 측정과 열 감지 센서, 음성인식 기술 (초등 5학년: 온도와 열, 초등 6학년: 감각기관)",
+            skills: [
+              "어르신들의 말투와 감정을 부드럽게 이해하는 자연어 기획력",
+              "응급 상황(낙상, 호흡 이상)을 즉각 판단하는 헬스케어 지식",
+              "기계를 낯설어하는 어르신도 손쉽게 쓰게 만드는 UX 기획"
+            ],
+            researchQuestion: "로봇이 단순한 기계가 아니라 어르신에게 진정한 손자·손녀 같은 따뜻한 위로를 전하려면 어떤 대화 기술이 필요할까요?"
+          },
+          {
+            id: "job-gen-connect-designer",
+            categoryId: "aging",
+            categoryName: "저출산·고령화",
+            title: "세대연결 디자이너",
+            emoji: "🎨",
+            description: "어르신의 오랜 지혜(요리, 목공, 역사)와 어린이의 최신 디지털 기술(메타버스, 코딩)을 서로 가르쳐주고 함께 게임하며 소통하는 미래형 커뮤니티 플랫폼을 디자인해요.",
+            scienceConcept: "정보통신 네트워크, 디지털 미디어 활용 (초등 실과 및 과학: 정보의 전달과 공유)",
+            skills: [
+              "남녀노소 누구나 쉽게 만질 수 있는 쉬운 스마트 화면 설계",
+              "서로 다른 세대가 흥미를 가질 만한 재미있는 협동 프로그램 기획",
+              "다양한 세대의 갈등을 줄이고 화합을 이끄는 커뮤니케이션 능력"
+            ],
+            researchQuestion: "초등학생과 80세 할아버지가 가상현실(VR) 공간에서 함께 옛날 서울을 탐험하며 역사 퀴즈를 풀 수 있을까요?"
+          }
+        ]
+      },
+      {
+        id: "resources",
+        title: "자원·환경",
+        emoji: "♻️",
+        themeColor: "from-teal-600 to-emerald-800",
+        badgeBg: "bg-teal-100 text-teal-800 border-teal-300",
+        cardBorder: "hover:border-teal-400",
+        question: "쓰레기를 줄이고 다시 자원으로 만들 수 있을까요?",
+        situation: "지구의 플라스틱과 전자 쓰레기가 산처럼 쌓이고 있어요. 한번 쓴 물건을 그냥 버리는 대신, 100% 썩거나 다시 새로운 첨단 부품으로 환생시키는 순환 경제 과학기술이 필요해요.",
+        jobs: [
+          {
+            id: "job-upcycle-material-dev",
+            categoryId: "resources",
+            categoryName: "자원·환경",
+            title: "업사이클링 소재 개발자",
+            emoji: "🧪",
+            description: "버려진 커피 찌꺼기나 옥수수 전분으로 물에 닿으면 튼튼하지만 흙속에서는 1달 만에 썩는 친환경 바이오 플라스틱이나 비건 가죽을 개발해요.",
+            scienceConcept: "물질의 성질과 분해, 유기물의 화학적 변화 (초등 6학년: 여러 가지 기체와 물질의 상태)",
+            skills: [
+              "버려진 유기물 부산물을 결합해 새 물질을 합성하는 화학 탐구력",
+              "기존 플라스틱만큼 질기고 방수가 잘되는지 시험하는 실험 능력",
+              "쓰레기를 아름다운 제품으로 바꾸는 창조적 상상력"
+            ],
+            researchQuestion: "바다거북이 먹어도 배탈이 나지 않고 영양분이 되는 바닷물 생분해 비닐봉지를 만들 수 있을까요?"
+          },
+          {
+            id: "job-future-waste-researcher",
+            categoryId: "resources",
+            categoryName: "자원·환경",
+            title: "미래폐기물 연구원",
+            emoji: "🔋",
+            description: "다 쓴 전기차 배터리나 태양광 폐패널 속에 들어있는 리튬, 코발트, 은 같은 값비싼 희귀 금속을 미생물과 친환경 용액을 써서 98% 이상 뽑아내는 도시광산을 연구해요.",
+            scienceConcept: "금속의 성질과 전기 전도성, 산과 염기 반응 (초등 6학년: 산과 염기, 용액의 진한 정도)",
+            skills: [
+              "특정 금속만 쏙 골라 먹는 유익한 박테리아를 키우는 생물공학 지식",
+              "폐기물 해체 시 유독물질이 새지 않게 차단하는 화학 안전 관리력",
+              "지구 자원의 한계를 극복하려는 순환 경제 비전"
+            ],
+            researchQuestion: "버려지는 스마트폰 1만 대에서 금반지 10개 분량의 순금을 환경오염 없이 캐내는 방법은 무엇일까요?"
+          },
+          {
+            id: "job-circular-city-planner",
+            categoryId: "resources",
+            categoryName: "자원·환경",
+            title: "자원순환 도시설계자",
+            emoji: "🏙️",
+            description: "도시 전체의 하수, 음식물 쓰레기, 빗물을 지하 파이프라인으로 모아 바이오가스 전기 에너지와 정수로 100% 바꾸는 '쓰레기 배출량 제로(0)' 스마트 시티를 계획해요.",
+            scienceConcept: "에너지의 전환(유기물 → 바이오가스 → 전기), 물의 순환 (초등 6학년: 에너지와 생활)",
+            skills: [
+              "도시 전체의 자원 흐름을 시뮬레이션하는 시스템 엔지니어링",
+              "빗물과 하수를 깨끗하게 거르는 자연정화 수처리 공학",
+              "시민들이 분리배출을 즐겁게 실천하도록 돕는 인센티브 제도 기획"
+            ],
+            researchQuestion: "한 도시에서 나오는 음식물 쓰레기만으로 그 도시의 모든 버스를 달리게 할 바이오 연료를 만들 수 있을까요?"
+          }
+        ]
+      }
+    ];
+
+    // 빠른 검색을 위한 전체 직업 맵
+    const ALL_JOBS_MAP = {};
+    FUTURE_DATA.forEach(cat => {
+      cat.jobs.forEach(job => {
+        ALL_JOBS_MAP[job.id] = job;
+      });
+    });
+
+    /* =========================================================================
+       2. 상태 관리 (State Management) & 로컬 스토리지 연동
+       ========================================================================= */
+    const STORAGE_KEY = "LAB2035_SAVED_JOBS";
+    let savedJobIds = [];
+    let currentCategoryId = "climate";
+    let currentJobId = null;
+
+    // 로컬 스토리지 불러오기
+    function initSavedJobs() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          savedJobIds = JSON.parse(stored);
+          if (!Array.isArray(savedJobIds)) savedJobIds = [];
+        }
+      } catch (e) {
+        console.warn("Storage access failed, using in-memory state:", e);
+        savedJobIds = [];
+      }
+      updateSavedBadge();
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedJobIds));
+      } catch (e) {
+        console.warn("Storage save failed:", e);
+      }
+      updateSavedBadge();
+    }
+
+    function updateSavedBadge() {
+      const badge = document.getElementById("savedCountBadge");
+      if (badge) {
+        badge.textContent = `${savedJobIds.length}/3`;
+        if (savedJobIds.length === 3) {
+          badge.className = "bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full font-black animate-bounce";
+        } else {
+          badge.className = "bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-black";
+        }
+      }
+    }
+
+    /* =========================================================================
+       3. Web Audio API를 활용한 미래 연구소 SFX 사운드
+       ========================================================================= */
+    let audioCtx = null;
+    function playSound(type) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'save') {
+          // 영롱한 저장 사운드 (두 음 아르페지오)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.setValueAtTime(880, now + 0.1); // A5
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'remove') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.15);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'pop') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        }
+      } catch (err) {
+        // 브라우저 권한 등에 따른 사운드 에러 무시
+      }
+    }
+
+    /* =========================================================================
+       4. 커스텀 토스트 알림 (alert 절대 금지 규칙 준수)
+       ========================================================================= */
+    let toastTimeout = null;
+    function showToast(message, icon = "💡") {
+      const toast = document.getElementById("toastMessage");
+      const text = document.getElementById("toastText");
+      const iconEl = document.getElementById("toastIcon");
+
+      if (!toast || !text) return;
+
+      text.textContent = message;
+      iconEl.textContent = icon;
+
+      toast.classList.remove("opacity-0", "pointer-events-none", "translate-y-4");
+      toast.classList.add("opacity-100", "translate-y-0");
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("opacity-100", "translate-y-0");
+        toast.classList.add("opacity-0", "pointer-events-none", "translate-y-4");
+      }, 2500);
+    }
+
+    /* =========================================================================
+       5. 뷰(화면) 전환 라우팅 함수
+       ========================================================================= */
+    function navigateTo(viewId) {
+      const views = ['home', 'categories', 'category-detail', 'job-detail', 'saved'];
+      views.forEach(id => {
+        const el = document.getElementById(`view-${id}`);
+        if (el) {
+          if (id === viewId) {
+            el.classList.remove('hidden');
+            setTimeout(() => {
+              el.classList.remove('opacity-0');
+              el.classList.add('opacity-100');
+            }, 10);
+          } else {
+            el.classList.add('hidden', 'opacity-0');
+            el.classList.remove('opacity-100');
+          }
+        }
+      });
+
+      // 뷰별 초기화
+      if (viewId === 'categories') {
+        renderCategories();
+      } else if (viewId === 'category-detail') {
+        renderCategoryDetail(currentCategoryId);
+      } else if (viewId === 'job-detail') {
+        renderJobDetail(currentJobId);
+      } else if (viewId === 'saved') {
+        renderSavedJobsView();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 뒤로가기 헬퍼
+    function goBackToCategory() {
+      if (currentCategoryId) {
+        navigateTo('category-detail');
+      } else {
+        navigateTo('categories');
+      }
+    }
+
+    /* =========================================================================
+       6. 뷰 2 렌더링: 미래사회 6개 카드
+       ========================================================================= */
+    function renderCategories() {
+      const grid = document.getElementById('categoryGrid');
+      if (!grid) return;
+
+      grid.innerHTML = FUTURE_DATA.map((cat, index) => {
+        return `
+          <div onclick="playSound('click'); selectCategory('${cat.id}')" 
+               class="card-transition bg-white border-2 border-slate-200 ${cat.cardBorder} rounded-3xl p-6 sm:p-7 shadow-sm cursor-pointer flex flex-col justify-between group relative overflow-hidden">
+            <!-- 탑 헤더 -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-4xl p-2.5 bg-slate-50 rounded-2xl group-hover:scale-110 transition-transform">${cat.emoji}</span>
+                <span class="text-xs font-black px-2.5 py-1 rounded-full ${cat.badgeBg}">
+                  분야 ${index + 1}
+                </span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-800 font-title mb-2 group-hover:text-sky-600 transition-colors">
+                ${cat.title}
+              </h3>
+              <p class="text-slate-600 font-medium text-sm sm:text-base leading-snug mb-4">
+                "${cat.question}"
+              </p>
+            </div>
+
+            <!-- 하단 3개 직업 프리뷰 배지 -->
+            <div class="pt-4 border-t border-slate-100">
+              <div class="text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">주요 미래 직업</div>
+              <div class="flex flex-wrap gap-1.5">
+                ${cat.jobs.map(j => `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded-lg font-medium">${j.title}</span>`).join('')}
+              </div>
+              <div class="mt-4 flex items-center justify-end text-sky-600 font-bold text-xs sm:text-sm group-hover:translate-x-1 transition-transform">
+                탐험하기 ➔
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectCategory(catId) {
+      currentCategoryId = catId;
+      navigateTo('category-detail');
+    }
+
+    /* =========================================================================
+       7. 뷰 3 렌더링: 특정 분야 및 생각 질문 & 직업 목록
+       ========================================================================= */
+    function renderCategoryDetail(catId) {
+      const cat = FUTURE_DATA.find(c => c.id === catId);
+      if (!cat) return;
+
+      // 1. 배너 업데이트
+      const banner = document.getElementById('catBanner');
+      banner.className = `p-6 sm:p-8 rounded-3xl text-white shadow-lg mb-8 relative overflow-hidden bg-gradient-to-r ${cat.themeColor}`;
+      banner.innerHTML = `
+        <div class="relative z-10">
+    async function saveQuickThought() {
+      const nameInput = document.getElementById('studentNameInput');
+      const input = document.getElementById('quickThoughtInput');
+      const fb = document.getElementById('thoughtFeedback');
+      const submitBtn = document.getElementById('submitThoughtBtn');
+
+      if (!input || !input.value.trim()) {
+        showToast("생각을 한 단어라도 적어보세요! 😊", "✏️");
+        return;
+      }
+
+      const studentName = nameInput ? nameInput.value.trim() || "익명 연구원" : "익명";
+      const ideaText = input.value.trim();
+      const currentCat = FUTURE_DATA.find(c => c.id === currentCategoryId);
+      const categoryTitle = currentCat ? currentCat.title : "공통";
+
+      // 구글 스프레드시트 연동 URL이 설정되어 있는 경우 비동기 전송
+      if (typeof GOOGLE_SHEET_URL !== "undefined" && GOOGLE_SHEET_URL.trim() !== "") {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `<span>전송 중...</span>`;
+        }
+
+        try {
+          // CORS 대응을 위한 no-cors 모드 또는 JSON 요청
+          await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              studentName: studentName,
+              category: categoryTitle,
+              idea: ideaText
+            })
+          });
+
+          playSound('pop');
+          if (fb) fb.classList.remove('hidden');
+          showToast("구글 시트에 선생님께 아이디어가 전달되었어요! 🚀", "✅");
+        } catch (error) {
+          console.error("전송 오류:", error);
+          playSound('pop');
+          if (fb) fb.classList.remove('hidden');
+          showToast("아이디어가 기록되었습니다!", "✨");
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<span>기록 완료 💡</span>`;
+          }
+        }
+      } else {
+        // 구글 시트 URL 미설정 시 로컬 피드백
+        playSound('pop');
+        if (fb) fb.classList.remove('hidden');
+        showToast("연구원의 아이디어가 잘 기록되었습니다!", "✨");
+      }
+    }
+
+    function selectJob(jobId) {
+      currentJobId = jobId;
+      navigateTo('job-detail');
+    }
+
+    /* =========================================================================
+       8. 뷰 4 렌더링: 직업 상세 페이지
+       ========================================================================= */
+    function renderJobDetail(jobId) {
+      const job = ALL_JOBS_MAP[jobId];
+      if (!job) return;
+
+      const cat = FUTURE_DATA.find(c => c.id === job.categoryId);
+
+      // 카테고리 태그
+      const catTag = document.getElementById('jobDetailCategoryTag');
+      if (catTag) {
+        catTag.textContent = `${cat.emoji} ${cat.title} 분야`;
+      }
+
+      // 헤더 배경 및 정보
+      const headerBg = document.getElementById('jobHeaderBg');
+      if (headerBg && cat) {
+        headerBg.className = `p-6 sm:p-8 text-white relative bg-gradient-to-r ${cat.themeColor}`;
+      }
+
+      document.getElementById('jobEmoji').textContent = job.emoji;
+      document.getElementById('jobTitle').textContent = job.title;
+      document.getElementById('jobDescription').textContent = job.description;
+      document.getElementById('jobScienceConcept').textContent = job.scienceConcept;
+      document.getElementById('jobResearchQuestion').textContent = `"${job.researchQuestion}"`;
+
+      // 필요한 능력 3가지 렌더링
+      const skillsContainer = document.getElementById('jobSkillsList');
+      skillsContainer.innerHTML = job.skills.map((skill, idx) => `
+        <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+          <span class="bg-amber-400 text-amber-950 text-xs font-black w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+            ${idx + 1}
+          </span>
+          <span class="text-xs sm:text-sm font-bold text-amber-900 leading-snug">
+            ${skill}
+          </span>
+        </div>
+      `).join('');
+
+      // 저장 버튼 상태 갱신
+      updateJobSaveButtons();
+    }
+
+    function updateJobSaveButtons() {
+      if (!currentJobId) return;
+      const isSaved = savedJobIds.includes(currentJobId);
+
+      const btnTop = document.getElementById('jobSaveToggleBtnTop');
+      const btnBottom = document.getElementById('jobSaveToggleBtnBottom');
+
+      const savedHtml = `
+        <span class="text-rose-500">❤️</span>
+        <span>관심 직업에서 해제</span>
+      `;
+      const notSavedHtml = `
+        <span class="text-rose-400">🤍</span>
+        <span>❤️ 관심 직업으로 저장</span>
+      `;
+
+      if (btnTop) {
+        btnTop.innerHTML = isSaved ? '<span>❤️ 찜함</span>' : '<span>🤍 찜하기</span>';
+        btnTop.className = isSaved 
+          ? "self-start sm:self-center px-4 py-2 rounded-xl font-black text-xs sm:text-sm transition-all shadow bg-white text-rose-600 hover:bg-rose-50"
+          : "self-start sm:self-center px-4 py-2 rounded-xl font-black text-xs sm:text-sm transition-all shadow bg-white/20 backdrop-blur-md text-white hover:bg-white/30 border border-white/40";
+      }
+
+      if (btnBottom) {
+        btnBottom.innerHTML = isSaved ? savedHtml : notSavedHtml;
+        btnBottom.className = isSaved
+          ? "w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-base shadow-lg transition-all flex items-center justify-center gap-2 bg-rose-50 text-rose-700 border-2 border-rose-300 hover:bg-rose-100 active:scale-95"
+          : "w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-base shadow-lg transition-all flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white active:scale-95";
+      }
+    }
+
+    function toggleCurrentJobSave() {
+      if (!currentJobId) return;
+
+      const idx = savedJobIds.indexOf(currentJobId);
+      if (idx > -1) {
+        // 해제
+        savedJobIds.splice(idx, 1);
+        playSound('remove');
+        saveToStorage();
+        updateJobSaveButtons();
+        showToast("관심 직업 목록에서 제외했습니다.", "💔");
+      } else {
+        // 저장 시 최대 3개 제한 체크
+        if (savedJobIds.length >= 3) {
+          playSound('pop');
+          showToast("관심 직업은 최대 3개까지만 저장할 수 있어요! ⭐ 목록에서 하나를 변경해 보세요.", "⚠️");
+          return;
+        }
+        savedJobIds.push(currentJobId);
+        playSound('save');
+        saveToStorage();
+        updateJobSaveButtons();
+        showToast("나의 관심 직업으로 찜했습니다! (최대 3개)", "❤️");
+      }
+    }
+
+    /* =========================================================================
+       9. 뷰 5 렌더링: 나의 관심 직업 탐색 결과
+       ========================================================================= */
+    function renderSavedJobsView() {
+      const container = document.getElementById('savedJobsContainer');
+      const canvaBtn = document.getElementById('canvaActionBtn');
+
+      // 교사용 Canva 링크 바인딩
+      if (canvaBtn) {
+        canvaBtn.href = CANVA_TEMPLATE_URL;
+      }
+
+      if (!container) return;
+
+      if (savedJobIds.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white border-2 border-dashed border-slate-300 rounded-3xl p-8 sm:p-12 text-center max-w-xl mx-auto">
+            <div class="text-5xl mb-3">🔍</div>
+            <h4 class="text-xl font-black text-slate-700 font-title mb-2">아직 저장한 관심 직업이 없어요!</h4>
+            <p class="text-slate-500 text-sm sm:text-base mb-6">
+              미래사회 분야들을 탐색하면서 마음에 드는 직업에 <br class="hidden sm:inline">
+              <strong class="text-rose-500 font-bold">"❤️ 관심 직업으로 저장"</strong> 버튼을 눌러보세요 (최대 3개).
+            </p>
+            <button onclick="playSound('click'); navigateTo('categories');" class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold text-sm sm:text-base rounded-xl shadow-md transition-colors">
+              미래사회 탐색하러 가기 ➔
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      // 저장된 카드들 렌더링
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+          ${savedJobIds.map((id, index) => {
+            const job = ALL_JOBS_MAP[id];
+            if (!job) return '';
+            const cat = FUTURE_DATA.find(c => c.id === job.categoryId);
+
+            return `
+              <div class="card-transition bg-white border-2 border-amber-300 rounded-3xl p-6 shadow-md flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-amber-400 text-amber-950 font-black text-[11px] px-3 py-1 rounded-bl-xl shadow-sm">
+                  PICK ${index + 1}
+                </div>
+
+                <div>
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${cat ? cat.badgeBg : 'bg-slate-100'}">
+                      ${job.categoryName}
+                    </span>
+                  </div>
+
+                  <div class="text-4xl mb-2">${job.emoji}</div>
+                  <h4 class="text-xl font-black text-slate-900 font-title mb-2">${job.title}</h4>
+                  <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 mb-4 leading-relaxed">
+                    ${job.description}
+                  </p>
+
+                  <!-- 과학 개념 요약 태그 -->
+                  <div class="bg-blue-50 text-blue-900 text-xs p-2.5 rounded-xl font-medium mb-4">
+                    <span class="font-bold">🧪 과학 개념:</span> ${job.scienceConcept.split('(')[0]}
+                  </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <button onclick="playSound('click'); selectJob('${job.id}')" class="px-3 py-2 bg-slate-100 hover:bg-sky-50 text-sky-700 font-bold text-xs rounded-xl transition-colors">
+                    상세보기 🔍
+                  </button>
+                  <button onclick="removeSavedJob('${job.id}')" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl transition-colors">
+                    삭제 ❌
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function removeSavedJob(jobId) {
+      const idx = savedJobIds.indexOf(jobId);
+      if (idx > -1) {
+        savedJobIds.splice(idx, 1);
+        playSound('remove');
+        saveToStorage();
+        renderSavedJobsView();
+        showToast("관심 직업 목록에서 삭제했습니다.", "🗑️");
+      }
+    }
+
+    /* =========================================================================
+       10. 초기화 및 이벤트 리스너
+       ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initSavedJobs();
+      renderCategories();
+      // 시작 뷰는 홈
+      navigateTo('home');
+    });
+  </script>
+</body>
+</html>
